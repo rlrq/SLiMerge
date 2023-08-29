@@ -7,6 +7,7 @@ Requirements
 ------------
 
 The python script used to combine files requires that:
+
 * indentation be such that anything within curly braces MUST be indented
 * closing curly braces MUST be aligned to the first non-whitespace character of the line where the matching opening curly braces are
 * uses of spaces and/or tabs MUST be consistent because the python script counts whitespace characters to find matching curly braces, not the amount of space taken up by each whitespace character

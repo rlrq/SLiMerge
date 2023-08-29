@@ -2,7 +2,7 @@
 import argparse
 
 import sys
-sys.path.append("/mnt/chaelab/rachelle/src")
+# sys.path.append("/mnt/chaelab/rachelle/src")
 
 parser = argparse.ArgumentParser(description="Merge multiple custom SLiM modules into a single file")
 parser.add_argument("fout", type=str, metavar="OUTPUT_FILE", help="path to output .slim file")

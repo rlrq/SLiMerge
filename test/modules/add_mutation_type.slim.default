@@ -1,0 +1,5 @@
+[add_mutation_type.slim]
+SIMULATION_ID="slim_" + date() + "_" + time()
+MUTATION_NAME=m1
+MUTATION_PARAMS=0.5, "f", 0.0
+MUTATION_COLOR=

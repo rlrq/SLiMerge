@@ -1,0 +1,9 @@
+// requires: MUTATION_1,MUTATION_2,EPISTATIC_S
+modifyChid() {
+	hasMutA = any(child.genomes.countOfMutationsOfType($MUTATION_1$) > 0);
+	hasMutB = any(child.genomes.countOfMutationsOfType($MUTATION_2$) > 0);
+	if (hasMutA & hasMutB) {
+		return ((rbinom(1, 1, $EPISTATIC_S$) > 0) ? T else F);
+	}
+	return T;
+}

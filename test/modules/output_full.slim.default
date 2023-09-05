@@ -1,0 +1,7 @@
+[output_full.slim]
+SUBSTITUTION_COMBO_ID=0
+OUTPUT_DIRECTORY=getwd()
+OUTPUT_PREFIX="slim_" + date() + "_" + time()
+OUTPUT_GENERATIONS=c(-1)
+START=1
+END=1

@@ -1,0 +1,4 @@
+// requires: MUTATION_NAME,NEUTRAL_FREQ,SUBPOPULATION
+mutationEffect($MUTATION_NAME$) {
+	return 1 + $NEUTRAL_FREQ$ - sim.mutationFrequencies($SUBPOPULATION$, mut);
+}

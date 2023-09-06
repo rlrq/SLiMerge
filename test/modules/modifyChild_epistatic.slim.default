@@ -1,0 +1,4 @@
+[modifyChild_epistatic.slim]
+MUTATION_1=m1
+MUTATION_2=m2
+EPISTATIC_S=0.0

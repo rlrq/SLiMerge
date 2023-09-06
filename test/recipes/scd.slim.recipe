@@ -26,24 +26,32 @@ REPLACE=F
 // modifyChild
 EPISTATIC_S=EPISTATIC_S
 
-[add_constant.slim].1
-CONSTANT_NAME=EPISTATIC_S
-CONSTANT_VALUE=0.0;0.1;0.2;0.5;0.8
-
 [general_WF.slim]
 SIMULATION_ID="scd"
 MUTATION_RATE=1e-7
 RECOMBINATION_RATE=1e-6;1e-7;1e-8;1e-9;1e-10
-POPULATION_SIZE=500;1000;2000;5000
+POPULATION_SIZE=500;1000;5000
 GENOME_SIZE=100000
 MUTATION_NAME=m1
 MUTATION_PARAMS=0.5, "f", 0.0
 GENOME_NAME=g1
 SIMUALTION_END=50000
 
-[hermaphrodite.slim]
-SELFING_RATE=0.0;0.1;0.5;0.9
-SUBPOPULATION=p1
+[add_constant.slim].1
+CONSTANT_NAME=NEUTRAL_FREQ_A
+CONSTANT_VALUE=$NEUTRAL_FREQ_A$
+
+[add_constant.slim].2
+CONSTANT_NAME=NEUTRAL_FREQ_B
+CONSTANT_VALUE=$NEUTRAL_FREQ_B$
+
+[add_constant.slim].3
+CONSTANT_NAME=NEUTRAL_FREQ_C
+CONSTANT_VALUE=$NEUTRAL_FREQ_C$
+
+[add_constant.slim].4
+CONSTANT_NAME=EPISTATIC_S
+CONSTANT_VALUE=0.0;0.2;0.5;0.8
 
 [add_mutation_type.slim].1
 MUTATION_NAME=m2
@@ -63,32 +71,48 @@ POSITION=9999
 MUTATION_NAME=m3
 POSITION=89999
 
-{
+
+// reproduction systems
+{ // hermaphrodites
+
+  [hermaphrodite.slim]
+  CALLBACK=1 early
+  SELFING_RATE=0.0;0.1;0.5;0.9
+
+}|{ // sexed
+
+  [separate_sexes.slim]
+  CHROMOSOME_TYPE=A
+  
+  [set_cloning_rate.slim]
+  CALLBACK=1 early
+  CLONING_RATE=0.0;0.1;0.5;0.9
+
+}
+
+// N loci involved in epistasis
+{ // 2-way epistasis
 
   // ensure no repeated combinations
+  []
+  NEUTRAL_FREQ_C=NULL
   {
-    [add_constant.slim].2
+    []
     NEUTRAL_FREQ_A=0.3
-    
-    [add_constant.slim].3
     NEUTRAL_FREQ_B=0.3;0.5;0.8
   }|{
-    [add_constant.slim].2
+    []
     NEUTRAL_FREQ_A=0.5
-    
-    [add_constant.slim].3
     NEUTRAL_FREQ_B=0.5;0.8
   }|{
-    [add_constant.slim].2
+    []
     NEUTRAL_FREQ_A=0.8
-    
-    [add_constant.slim].3
     NEUTRAL_FREQ_B=0.8
   }
+  
+  // selection mechanisms
+  { // Individual survives but is infertile
 
-  {
-
-    // Individual survives but is infertile
     [mutationEffect_epistatic_frequency-dependent.slim].1
     MUTATION_1=m2
     MUTATION_2=m3
@@ -99,12 +123,10 @@ POSITION=89999
     MUTATION_2=m2
     NEUTRAL_FREQ=NEUTRAL_FREQ_B
 
-  }|{
-
-    // Individual dies at fertilisation
-    [modifyChild_epistatic.slim]
-    MUTATION_1=m2
-    MUTATION_2=m3
+  }|{ // Individual dies at fertilisation
+  
+    [modifyChild_multiway_epistatic.slim]
+	MUTATIONS=c(m2,m3)
 
     [mutationEffect_frequency-dependent.slim].1
     MUTATION_NAME=m2
@@ -116,7 +138,7 @@ POSITION=89999
 
   }
 
-}|{
+}|{ // 3-way epistasis
 
   [add_mutation_type.slim].3
   MUTATION_NAME=m4
@@ -127,12 +149,85 @@ POSITION=89999
   MUTATION_NAME=m4
   POSITION=49999
 
+  // ensure no repeats
+  {
+    []
+    NEUTRAL_FREQ_A=0.3	
+	{
+	  []
+	  NEUTRAL_FREQ_B=0.3
+	  NEUTRAL_FREQ_C=0.3;0.5;0.8
+	}|{
+	  []
+	  NEUTRAL_FREQ_B=0.5
+	  NEUTRAL_FREQ_C=0.5;0.8
+	}|{
+	  []
+	  NEUTRAL_FREQ_B=0.8
+	  NEUTRAL_FREQ_C=0.8
+	}
+  }|{
+    []
+    NEUTRAL_FREQ_A=0.5
+	{
+      []
+	  NEUTRAL_FREQ_B=0.5
+	  NEUTRAL_FREQ_C=0.5;0.8
+	}|{
+	  []
+	  NEUTRAL_FREQ_B=0.8
+	  NEUTRAL_FREQ_C=0.8
+	}
+  }|{
+    []
+    NEUTRAL_FREQ_A=0.8
+    NEUTRAL_FREQ_B=0.8
+	NEUTRAL_FREQ_C=0.8
+  }
+  
+  // selection mechanism
+  { // Individual survives but is infertile
+
+    [mutationEffect_multiway_epistatic_frequency-dependent.slim].1
+    MUTATION_1=m2
+    MUTATIONS=c(m3,m4)
+    NEUTRAL_FREQ=NEUTRAL_FREQ_A
+
+    [mutationEffect_multiway_epistatic_frequency-dependent.slim].2
+    MUTATION_1=m3
+    MUTATIONS=c(m2,m4)
+    NEUTRAL_FREQ=NEUTRAL_FREQ_B
+	
+	[mutationEffect_multiway_epistatic_frequency-dependent.slim].3
+    MUTATION_1=m4
+    MUTATIONS=c(m2,m3)
+    NEUTRAL_FREQ=NEUTRAL_FREQ_C
+
+  }|{ // Individual dies at fertilisation
+
+    [modifyChild_multiway_epistatic.slim]
+	MUTATIONS=c(m2,m3,m4)
+
+    [mutationEffect_frequency-dependent.slim].1
+    MUTATION_NAME=m2
+    NEUTRAL_FREQ=NEUTRAL_FREQ_A
+    
+    [mutationEffect_frequency-dependent.slim].2
+    MUTATION_NAME=m3
+    NEUTRAL_FREQ=NEUTRAL_FREQ_B
+	
+    [mutationEffect_frequency-dependent.slim].3
+    MUTATION_NAME=m4
+    NEUTRAL_FREQ=NEUTRAL_FREQ_C
+
+  }
+
 }
 
-// integrate this module at end so that OUTPUT_PREFIX uses the latest version of SIMULATION_ID
+// integrate this module at end so that OUTPUT_PREFIX uses the latest version of SUBSTITUTION_ID
 [output_full.slim]
 OUTPUT_DIRECTORY="/mnt/d/OneDrive_doysd/OneDrive - Default Directory/Courses/SLiM/SLiM_Workshop_Online/SLiM_Workshop_Online"
-OUTPUT_PREFIX=SIMULATION_ID
+OUTPUT_PREFIX="scd_" + SUBSTITUTION_ID
 OUTPUT_GENERATIONS=c(10, 20, 30, 50, 100, 200, 300, 500, 1000, 2000, 3000, 5000, 10000, 20000, 30000, 50000)
 START=1
 END=50000

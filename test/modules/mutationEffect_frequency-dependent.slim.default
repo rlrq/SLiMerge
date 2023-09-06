@@ -1,0 +1,4 @@
+[mutationEffect_frequency-dependent.slim]
+MUTATION_NAME=m1
+NEUTRAL_FREQ=0.5
+SUBPOPULATION=p1

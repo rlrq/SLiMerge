@@ -1,5 +1,6 @@
 import os
 import re
+import copy
 import warnings
 
 from code_blocks import Script, ScriptModule
@@ -116,7 +117,7 @@ class SubstitutionBlockGen():
             if variable in self.variables and not overwrite:
                 continue
             else:
-                self.add_variable(variable, value)
+                self.add_variable(variable, copy.copy(value))
         return
     def generate_str_header(self):
         return f"[{self.filename}]"
@@ -197,9 +198,12 @@ class SubstitutionFile():
                         ]}
         '''
         self.data = {}
+        self.order = []
         self._parser = SubstitutionParser(comment_function = lambda line: line[:2] == "//")
         if fname is not None:
             self.parse_file(fname)
+        elif string is not None:
+            self.parse_string(string)
         elif not suppress_warning:
             print("Use SubstitutionFile.parse_file(<filename>) or Script.parse_string(<string>) to input data")
         return
@@ -214,7 +218,10 @@ class SubstitutionFile():
         return
     ## create new module
     def _new_module(self, module):
-        self.data[module] = []
+        if module not in self.data:
+            self.data[module] = []
+        if module not in self.order:
+            self.order.append(module)
     ## add SubstitutionBlockSubFile object
     def add_substitution_block(self, sub_block, overwrite = False):
         module = sub_block.filename
@@ -267,13 +274,15 @@ class SubstitutionFile():
             else:
                 self._defaults[filename] = SubstitutionBlockDefaultFile(f_default)
         return self._defaults[filename].variables
-    def merge(self, new_substitution_file, overwrite = False):
+    def merge(self, new_substitution_file, overwrite = False, deepcopy = False):
         for other_filename, other_blocks in new_substitution_file.data.items():
+            blocks_to_add = other_blocks if not deepcopy else copy.deepcopy(other_blocks)
             if other_filename not in self.data:
-                self.data[other_filename] = other_blocks
+                self._new_module(other_filename)
+                self.data[other_filename] = blocks_to_add
             else:
                 self_blocks = self.data[other_filename]
-                for i, other_block in enumerate(other_blocks):
+                for i, other_block in enumerate(blocks_to_add):
                     if other_block is None:
                         continue
                     else:
@@ -305,8 +314,11 @@ class SubstitutionFile():
         Builds a Script object based on SubstitutionFile contents.
         order (list): default = None.
             Modules will be added to script in this order, if specified.
-            Otherwise, they will be added randomly.
+            Otherwise, they will be added according to self.order.
+            If neither is specified, order will be random.
         exclude_if_not_in_order (bool): default = True.
+            (For the rest of this description, 'order' refers to argument order if specified,
+            self.order if not.)
             If True and 'order' is not None, modules not in 'order' will be excluded from output Script.
             If False and 'order' is not None, modules not in 'order' will be appended to end of
             ordered modules in random order.
@@ -314,13 +326,10 @@ class SubstitutionFile():
             (in theory, but since dictionaries seem to be ordered these days...who knows :))
         '''
         ## determine order of modules
-        print("before here")
-        order = (order if order is not None else self.modules)
-        print("here")
+        order = (order if order is not None else self.order if self.order else self.modules)
         if not exclude_if_not_in_order:
             missing_modules = [module for module in self.modules if module not in order]
             order.extend(missing_modules)
-        print("here2")
         ## create final Script object
         new_script = ScriptModule(indentation = indentation)
         ## start adding modules to script

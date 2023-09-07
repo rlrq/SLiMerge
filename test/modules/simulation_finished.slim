@@ -1,0 +1,10 @@
+// variables with defaults: CALLBACK,CONDITION,WRITE_FULL,OUTPUT_FILE
+// requires: CALLBACK,CONDITION,WRITE_FULL,OUTPUT_FILE
+$CALLBACK$() {
+	if ($CONDITION$){
+		sim.simulationFinished();
+		if ($WRITE_FULL$){
+			sim.outputFull($OUTPUT_FILE$);
+		}
+	}
+}

@@ -1,9 +1,8 @@
 // variables with defaults: SIMULATION_ID,MUTATION_RATE,RECOMBINATION_RATE,POPULATION_SIZE,GENOME_SIZE,MUTATION_NAME,MUTATION_PARAMS,GENOME_NAME,POPULATION_NAME,SIMULATION_END
 // MUTATION_PARAMS should be something like '0.5, "f", 0.0' (unquoted)
 initialize() {
-	defineGlobal("SIMULATION_ID", $SIMULATION_ID$)
+	defineGlobal("SIMULATION_ID", $SIMULATION_ID$);
 	defineConstant("MUTATION_RATE", $MUTATION_RATE$);
-	defineConstant("RECOMBINATION_RATE", $RECOMBINATION_RATE$);
 	defineConstant("POPULATION_NAME", $POPULATION_NAME$);
 	defineConstant("POPULATION_SIZE", $POPULATION_SIZE$);
 	defineConstant("GENOME_SIZE", $GENOME_SIZE$);
@@ -11,7 +10,7 @@ initialize() {
 	initializeMutationType("$MUTATION_NAME$", $MUTATION_PARAMS$);
 	initializeGenomicElementType("$GENOME_NAME$", $MUTATION_NAME$, 1.0);
 	initializeGenomicElement($GENOME_NAME$, 0, GENOME_SIZE - 1);
-	initializeRecombinationRate(RECOMBINATION_RATE);
+	initializeRecombinationRate($RECOMBINATION_RATE$);
 }
 
 1 early() {

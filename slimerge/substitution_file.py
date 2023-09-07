@@ -33,6 +33,8 @@ class PathsSearch():
         for path in self.paths:
             if path not in self.files:
                 self.update()
+                break
+        for path in self.paths:
             if filename in self.files[path]:
                 return os.path.join(path, filename)
         return None
@@ -331,7 +333,7 @@ class SubstitutionFile():
             missing_modules = [module for module in self.modules if module not in order]
             order.extend(missing_modules)
         ## create final Script object
-        new_script = ScriptModule(indentation = indentation)
+        new_script = ScriptModule(indentation = indentation, suppress_warning = True)
         ## start adding modules to script
         general_block = None
         for module in order:

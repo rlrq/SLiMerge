@@ -1,0 +1,97 @@
+initialize(){
+	defineGlobal("SIMULATION_ID", "scd");
+	defineConstant("MUTATION_RATE", 1e-7);
+	defineConstant("POPULATION_NAME", "p1");
+	defineConstant("POPULATION_SIZE", 500);
+	defineConstant("GENOME_SIZE", 100000);
+	initializeMutationRate(MUTATION_RATE);
+	initializeMutationType("m1", 0.5, "f", 0.0);
+	initializeGenomicElementType("g1", m1, 1.0);
+	initializeGenomicElement(g1, 0, GENOME_SIZE - 1);
+	initializeRecombinationRate(1e-7);
+	defineConstant("NEUTRAL_FREQ_A", 0.3);
+	defineConstant("NEUTRAL_FREQ_B", 0.3);
+	defineConstant("NEUTRAL_FREQ_C", NULL);
+	defineConstant("EPISTATIC_S", 0.0);
+	initializeMutationType("m2", 0.5, "f", 0.0);
+	m2.convertToSubstitution = F;
+	m2.color = "red";
+	initializeMutationType("m3", 0.5, "f", 0.0);
+	m3.convertToSubstitution = F;
+	m3.color = "#20D033";
+	defineConstant("SEED", getSeed());
+	defineConstant("SUBSTITUTION_ID", 1);
+	defineConstant("OUTPUT_DIRECTORY", "/mnt/d/OneDrive_doysd/OneDrive - Default Directory/Courses/SLiM/SLiM_Workshop_Online/SLiM_Workshop_Online");
+	defineGlobal("OUTPUT_PREFIX", SIMULATION_ID + "_" + SUBSTITUTION_ID);
+	defineConstant("OUTPUT_GENERATIONS", c(10, 20, 30, 50, 100, 200, 300, 500, 1000, 2000, 3000, 5000, 10000, 20000, 30000, 50000));
+	defineGlobal("OUTPUT_GENERATION_i", 1);
+}
+1 early(){
+	sim.addSubpop(POPULATION_NAME, POPULATION_SIZE);
+	p1.setSelfingRate(0.0);
+}
+50000 late(){
+	sim.simulationFinished();
+}
+1 late(){
+	p1.sampleIndividuals(10, F).genomes.addNewDrawnMutation(m2, 9999);
+	p1.sampleIndividuals(10, F).genomes.addNewDrawnMutation(m3, 89999);
+}
+mutationEffect(m2){
+	if (any(individual.genomes.countOfMutationsOfType(m3) > 0)){
+		return EPISTATIC_S;
+	}
+	else{
+		if (homozygous){
+			return 1 + NEUTRAL_FREQ_A - sim.mutationFrequencies(p1, mut);
+		}
+		else{
+			return 1 + (NEUTRAL_FREQ_A - sim.mutationFrequencies(p1, mut) * mut.mutationType.dominanceCoeff);
+		}
+	}
+}
+mutationEffect(m3){
+	if (any(individual.genomes.countOfMutationsOfType(m2) > 0)){
+		return EPISTATIC_S;
+	}
+	else{
+		if (homozygous){
+			return 1 + NEUTRAL_FREQ_B - sim.mutationFrequencies(p1, mut);
+		}
+		else{
+			return 1 + (NEUTRAL_FREQ_B - sim.mutationFrequencies(p1, mut) * mut.mutationType.dominanceCoeff);
+		}
+	}
+}
+2:50000 late(){
+	if (!mutsPresent(p1.individuals, c(m2,m3))){
+		sim.simulationFinished();
+		if (T){
+			sim.outputFull(OUTPUT_DIRECTORY + "/" + OUTPUT_PREFIX + "_" + SUBSTITUTION_ID + "_" + SEED + "_" + sim.cycle + ".txt");
+		}
+	}
+}
+1:50000 late(){
+	if (sim.cycle == OUTPUT_GENERATIONS[OUTPUT_GENERATION_i]){
+		sim.outputFull(OUTPUT_DIRECTORY + "/" + OUTPUT_PREFIX + "_" + SUBSTITUTION_ID + "_" + SEED + "_" + sim.cycle + ".txt");
+		defineGlobal("OUTPUT_GENERATION_i", OUTPUT_GENERATION_i + 1);
+	}
+}
+function(logical)hasMut(object<Individual> indvs,object<MutationType> mut){
+	return(sapply(indvs, "any(applyValue.genomes.countOfMutationsOfType(mut) > 0);"));
+}
+function(integer)numIndvsWithMut(object<Individual> indvs,object<MutationType> mut){
+	return(sum(sapply(indvs, "hasMut(applyValue, mut);")));
+}
+function(logical)hasMuts(object<Individual> indv,object<MutationType> muts){
+	return(all(sapply(muts, "any(indv.genomes.countOfMutationsOfType(applyValue) > 0);")));
+}
+function(integer)numIndvsWithMuts(object<Individual> indvs,object<MutationType> muts){
+	return(sum(sapply(indvs, "hasMuts(applyValue, muts);")));
+}
+function(logical)mutPresent(object<Individual> indvs,object<MutationType> mut){
+	return(any(sapply(indvs, "hasMut(applyValue, mut);")));
+}
+function(logical)mutsPresent(object<Individual> indvs, object<MutationType> muts){
+	return(all(sapply(muts, "mutPresent(indvs, applyValue);")));
+}

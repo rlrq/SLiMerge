@@ -1,0 +1,29 @@
+// returns True if any individuals in 'indv' has a given mutation type
+function(logical)hasMut(object<Individual> indvs,object<MutationType> mut) {
+	return(sapply(indvs, "any(applyValue.genomes.countOfMutationsOfType(mut) > 0);"));
+}
+
+// returns number of individuals with a given mutation type
+function(integer)numIndvsWithMut(object<Individual> indvs,object<MutationType> mut){
+	return(sum(sapply(indvs, "hasMut(applyValue, mut);")));
+}
+
+// returns True if a given individual has all of mutation types in 'muts'
+function(logical)hasMuts(object<Individual> indv,object<MutationType> muts){
+	return(all(sapply(muts, "any(indv.genomes.countOfMutationsOfType(applyValue) > 0);")));
+}
+
+// returns the number of individuals with all of the mutation types in 'muts'
+function(integer)numIndvsWithMuts(object<Individual> indvs,object<MutationType> muts){
+	return(sum(sapply(indvs, "hasMuts(applyValue, muts);")));
+}
+
+// returns True if a given mutation is present in any individuals
+function(logical)mutPresent(object<Individual> indvs,object<MutationType> mut){
+	return(any(sapply(indvs, "hasMut(applyValue, mut);")));
+}
+
+// returns True if all mutations are present in at any individuals (together or separately)
+function(logical)mutsPresent(object<Individual> indvs, object<MutationType> muts){
+	return(all(sapply(muts, "mutPresent(indvs, applyValue);")));
+}

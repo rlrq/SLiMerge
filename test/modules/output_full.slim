@@ -3,7 +3,7 @@
 initialize() {
 	// get seed
 	defineConstant("SEED", getSeed());
-	defineConstant("SUBSTITUTION_ID", $SUBSTITUTION_ID$)
+	defineConstant("SUBSTITUTION_ID", $SUBSTITUTION_ID$);
 	// output checkpoints (generations to sample must be in order)
 	defineConstant("OUTPUT_DIRECTORY", $OUTPUT_DIRECTORY$);
 	defineGlobal("OUTPUT_PREFIX", $OUTPUT_PREFIX$);
@@ -14,7 +14,7 @@ initialize() {
 // output full
 $START$:$END$ late() {
 	if (sim.cycle == OUTPUT_GENERATIONS[OUTPUT_GENERATION_i]) {
-		sim.outputFull(OUTPUT_DIRECTORY + "/" + OUTPUT_PREFIX + "_" + SUBSTITUTION_COMBO_ID + "_" + SEED + "_" + sim.cycle + ".txt");
+		sim.outputFull(OUTPUT_DIRECTORY + "/" + OUTPUT_PREFIX + "_" + SUBSTITUTION_ID + "_" + SEED + "_" + sim.cycle + ".txt");
 		defineGlobal("OUTPUT_GENERATION_i", OUTPUT_GENERATION_i + 1);
 	}
 }

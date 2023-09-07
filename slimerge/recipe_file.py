@@ -1,5 +1,6 @@
 import copy
 import itertools
+import numpy
 import warnings
 import pyparsing as pp
 
@@ -78,7 +79,10 @@ class CachedIter():
         return
 
 def product_cached(*args):
-    new_args = [args[0]] + [CachedIter(arg) for arg in args[1:]]
+    if args:
+        new_args = [args[0]] + [CachedIter(arg) for arg in args[1:]]
+    else:
+        return []
     def product(*args):
         if len(args) == 1:
             for i in args[0]:
@@ -91,24 +95,24 @@ def product_cached(*args):
     yield from product(*new_args)
     return
 
-def test_gen():
-    while True:
-        yield 1
-        yield 2
-        raise StopIteration
-        # next(generator, None)
-    return
+# def test_gen():
+#     while True:
+#         yield 1
+#         yield 2
+#         raise StopIteration
+#         # next(generator, None)
+#     return
 
-i = 0
-g = test_gen()
-for i, e in enumerate(g):
-    if i >= 4:
-        break
-    print(e)
+# i = 0
+# g = test_gen()
+# for i, e in enumerate(g):
+#     if i >= 4:
+#         break
+#     print(e)
 
-while i <= 4:
-    print(next(g))
-    i += 1
+# while i <= 4:
+#     print(next(g))
+#     i += 1
 
 ## class that collects multiple recipe blocks joined with AND
 ## ignores comment lines
@@ -184,7 +188,10 @@ class RecipeBlock(SubstitutionBlockSubFile):
     ## generator of SubstitutionFile objects with every possible combination of values
     def substitution_combos(self):
         variables = list(self.variables.keys())
-        combos = product_cached(*[self.variables[var] for var in variables])
+        if variables:
+            combos = product_cached(*[self.variables[var] for var in variables])
+        else:
+            combos = [[]]
         for i, combo in enumerate(combos):
             output_sub_file = SubstitutionFile(suppress_warning = True)
             str_header = self.generate_str_header()
@@ -296,6 +303,9 @@ class RecipeFile(SubstitutionFile):
         sub_files = self.recipe.substitution_combos()
         for i, sub_file in enumerate(sub_files):
             sub_file.substitution_id = i+1
+            sub_file.modules_d = self.modules_d
+            sub_file.module_paths = self.module_paths
+            sub_file._defaults = self._defaults
             yield sub_file
         return 
     def slim_files(self):
@@ -388,29 +398,27 @@ for z_sub in z_subs:
 
 ## test all :)
 dir_base = '/mnt/d/OneDrive_doysd/OneDrive - Default Directory/scripts/SLiMerge'
+dir_base = "/mnt/chaelab/rachelle/scripts/SLiMerge"
 fname = dir_base + '/test/recipes/scd.slim.recipe'
+fname = dir_base + '/test/recipes/scd_less.slim.recipe'
 modules = [dir_base + '/test/modules/output_full.slim', dir_base + '/test/modules/general_WF.slim', dir_base + '/test/modules/add_new_drawn_mutation.slim']
 x = RecipeFile(fname, modules)
+
 x = RecipeFile(fname = fname, module_paths = [dir_base + "/test/modules"])
+x.num_combos()
 x_subs = x.substitution_files()
 x_subs1 = next(x_subs)
+x_subs1.get_module_path("general_WF.slim")
 print(x_subs1.generate_string())
+x_subs1_script = x_subs1.build_script()
+print(x_subs1_script.make_string())
+
+with open(dir_base + "/test/scripts/test_recipe_subs1.slim", "w+") as f:
+    f.write(x_subs1_script.make_string())
+
+
 x_subs2 = next(x_subs)
 print(x_subs2.generate_string())
-
-x_subs2_split = x_subs2.generate_string().split('\n')
-for line in x_subs1.generate_string().splitlines():
-    if line not in x_subs2_split:
-        print(line)
-
-x_subs1_split = x_subs1.generate_string().split('\n')
-for line in x_subs2.generate_string().splitlines():
-    if line not in x_subs1_split:
-        print(line)
-
-x_subs_num = sum(1 for _ in x_subs)
-
-print(next(x_subs).generate_string())
 
 def print_sub_files(iterable):
     for e in iterable:

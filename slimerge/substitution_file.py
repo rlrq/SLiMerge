@@ -5,20 +5,20 @@ import warnings
 
 from code_blocks import Script, ScriptModule
 
-class A:
-    def __init__(self, a):
-        self.name = a
-        self.parse()
-    def parse(self):
-        print(self.name)
+# class A:
+#     def __init__(self, a):
+#         self.name = a
+#         self.parse()
+#     def parse(self):
+#         print(self.name)
 
-class B(A):
-    def __init__(self, a):
-        super().__init__(a)
-        self.b = 'b'
-    def parse(self):
-        print("hello") ## raises error because B.__init__ calls super().__init__ (A.__init__) which calls B.parse() but self.b is only defined after calling super().__init__. So yes B's parse will override A's parse even if parse is called in an A method
-        super().parse()
+# class B(A):
+#     def __init__(self, a):
+#         super().__init__(a)
+#         self.b = 'b'
+#     def parse(self):
+#         print("hello") ## raises error because B.__init__ calls super().__init__ (A.__init__) which calls B.parse() but self.b is only defined after calling super().__init__. So yes B's parse will override A's parse even if parse is called in an A method
+#         super().parse()
 
 class PathsSearch():
     def __init__(self, paths = []):
@@ -368,22 +368,22 @@ class SubstitutionFile():
         return Script(string = final_script_str, indentation = indentation, suppress_warning = True)
 
 
-## test
-dir_base = '/mnt/d/OneDrive_doysd/OneDrive - Default Directory/scripts/SLiMerge'
-fname = dir_base + '/test/substitution_1.txt'
-modules = [dir_base + '/test/modules/output_full.slim', dir_base + '/test/modules/general_WF.slim', dir_base + '/test/modules/add_new_drawn_mutation.slim']
-x = SubstitutionFile(fname, modules)
-x.data
-x.data["output_full.slim"][0].variables
+# ## test
+# dir_base = '/mnt/d/OneDrive_doysd/OneDrive - Default Directory/scripts/SLiMerge'
+# fname = dir_base + '/test/substitution_1.txt'
+# modules = [dir_base + '/test/modules/output_full.slim', dir_base + '/test/modules/general_WF.slim', dir_base + '/test/modules/add_new_drawn_mutation.slim']
+# x = SubstitutionFile(fname, modules)
+# x.data
+# x.data["output_full.slim"][0].variables
 
-txt = '''
-[]
-VAR1=a
-VAR2=b
+# txt = '''
+# []
+# VAR1=a
+# VAR2=b
 
-[hello.slim]
+# [hello.slim]
 
-[ohno.slim]
-HEY=1
-34=GH
-'''
+# [ohno.slim]
+# HEY=1
+# 34=GH
+# '''

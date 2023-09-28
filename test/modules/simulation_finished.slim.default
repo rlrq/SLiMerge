@@ -1,0 +1,5 @@
+[simulation_finished.slim]
+CALLBACK=10 late
+CONDITION=T
+WRITE_FULL=F
+OUTPUT_FILE="slim_" + date() + "_" + time() + "_" + sim.cycle + ".txt"

@@ -275,63 +275,63 @@ class ScriptModule(Script):
 ##  TEST  ##
 ############
 
-txt = '''
-initialize() {
-  initializeSex("A");
-  initializeMutationRate(1e-7);
-}
-1 early() {
-  sim.addSubpop("p1", 500);
-  p1.addNewDrawnMutation(hello);
-}
-sample() {
-  sample2() {
-    inner_function;
-    // more inner
-  }
-  new_line;
-  sample3() {
-    inner_function2;
-  }
-}
-'''
+# txt = '''
+# initialize() {
+#   initializeSex("A");
+#   initializeMutationRate(1e-7);
+# }
+# 1 early() {
+#   sim.addSubpop("p1", 500);
+#   p1.addNewDrawnMutation(hello);
+# }
+# sample() {
+#   sample2() {
+#     inner_function;
+#     // more inner
+#   }
+#   new_line;
+#   sample3() {
+#     inner_function2;
+#   }
+# }
+# '''
 
-txt_blk_new = [
-    'initialize()',
-    ['initializeMutationType("m1", 0.5, "f", 0.0);']
-]
+# txt_blk_new = [
+#     'initialize()',
+#     ['initializeMutationType("m1", 0.5, "f", 0.0);']
+# ]
 
-txt_blk_new_2 = [
-    'sample()',
-    ['sample2()',
-     ['// another comment',
-      'new_code_line;']
-     ]
-]
+# txt_blk_new_2 = [
+#     'sample()',
+#     ['sample2()',
+#      ['// another comment',
+#       'new_code_line;']
+#      ]
+# ]
 
-txt_blk_new_3 = [
-    'sample()',
-    ['sample3()',
-     ['sample4()',
-      ['new_code_line;']
-      ]
-     ]
-]
+# txt_blk_new_3 = [
+#     'sample()',
+#     ['sample3()',
+#      ['sample4()',
+#       ['new_code_line;']
+#       ]
+#      ]
+# ]
 
-txt_blk_redundant = [
-    'initialize()',
-    ['initializeSex("A");']
-]
+# txt_blk_redundant = [
+#     'initialize()',
+#     ['initializeSex("A");']
+# ]
 
-script = Script()
-script.parse_string(txt)
-blk_new = CodeBlock(txt_blk_new)
-blk_new_2 = CodeBlock(txt_blk_new_2)
-blk_new_3 = CodeBlock(txt_blk_new_3)
-blk_redundant = CodeBlock(txt_blk_redundant)
-script.merge_block(blk_new)
-script.merge_block(blk_redundant)
-script.merge_block(blk_new_2)
-script.merge_block(blk_new_3)
-print('\n' + script.make_string(ignore_comments = True))
-print('\n' + script.make_string(ignore_comments = False))
+# script = Script()
+# script.parse_string(txt)
+# blk_new = CodeBlock(txt_blk_new)
+# blk_new_2 = CodeBlock(txt_blk_new_2)
+# blk_new_3 = CodeBlock(txt_blk_new_3)
+# blk_redundant = CodeBlock(txt_blk_redundant)
+# script.merge_block(blk_new)
+# script.merge_block(blk_redundant)
+# script.merge_block(blk_new_2)
+# script.merge_block(blk_new_3)
+# print('\n' + script.make_string(ignore_comments = True))
+# print('\n' + script.make_string(ignore_comments = False))

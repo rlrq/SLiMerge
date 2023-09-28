@@ -1,5 +1,6 @@
 import copy
 import itertools
+import numpy
 import warnings
 import pyparsing as pp
 
@@ -36,33 +37,33 @@ def group_alt_blocks(l, unlist = False):
             i += 1
     return output
 
-## alternative to itertools.product, which unfortunately converts the iterable to a concrete sequence
-## function from https://stackoverflow.com/a/26153911
-def product(*args):
-    if len(args) == 1:
-        for i in args[0]:
-            yield [i]
-    else:
-        for i in args[0]:
-            for j in product(*args[1:]):
-                yield [i] + j
-    return
+# ## alternative to itertools.product, which unfortunately converts the iterable to a concrete sequence
+# ## function from https://stackoverflow.com/a/26153911
+# def product(*args):
+#     if len(args) == 1:
+#         for i in args[0]:
+#             yield [i]
+#     else:
+#         for i in args[0]:
+#             for j in product(*args[1:]):
+#                 yield [i] + j
+#     return
 
-## alternative to itertools.product, which unfortunately converts the iterable to a concrete sequence
-## adapted from https://stackoverflow.com/a/26153911
-def generator_product(*args):
-    if len(args) == 1:
-        ## tee it
-        args_0_1, args_0_2 = itertools.tee(args[0])
-        for i in args_0_2:
-            yield [i]
-    else:
-        ## tee it
-        args_0_1, args_0_2 = itertools.tee(args[0])
-        for i in args_0_2:
-            for j in generator_product(*args[1:]):
-                yield [i] + j
-    return
+# ## alternative to itertools.product, which unfortunately converts the iterable to a concrete sequence
+# ## adapted from https://stackoverflow.com/a/26153911
+# def generator_product(*args):
+#     if len(args) == 1:
+#         ## tee it
+#         args_0_1, args_0_2 = itertools.tee(args[0])
+#         for i in args_0_2:
+#             yield [i]
+#     else:
+#         ## tee it
+#         args_0_1, args_0_2 = itertools.tee(args[0])
+#         for i in args_0_2:
+#             for j in generator_product(*args[1:]):
+#                 yield [i] + j
+#     return
 
 class CachedIter():
     def __init__(self, iterable):
@@ -78,7 +79,10 @@ class CachedIter():
         return
 
 def product_cached(*args):
-    new_args = [args[0]] + [CachedIter(arg) for arg in args[1:]]
+    if args:
+        new_args = [args[0]] + [CachedIter(arg) for arg in args[1:]]
+    else:
+        return []
     def product(*args):
         if len(args) == 1:
             for i in args[0]:
@@ -91,24 +95,24 @@ def product_cached(*args):
     yield from product(*new_args)
     return
 
-def test_gen():
-    while True:
-        yield 1
-        yield 2
-        raise StopIteration
-        # next(generator, None)
-    return
+# def test_gen():
+#     while True:
+#         yield 1
+#         yield 2
+#         raise StopIteration
+#         # next(generator, None)
+#     return
 
-i = 0
-g = test_gen()
-for i, e in enumerate(g):
-    if i >= 4:
-        break
-    print(e)
+# i = 0
+# g = test_gen()
+# for i, e in enumerate(g):
+#     if i >= 4:
+#         break
+#     print(e)
 
-while i <= 4:
-    print(next(g))
-    i += 1
+# while i <= 4:
+#     print(next(g))
+#     i += 1
 
 ## class that collects multiple recipe blocks joined with AND
 ## ignores comment lines
@@ -184,7 +188,10 @@ class RecipeBlock(SubstitutionBlockSubFile):
     ## generator of SubstitutionFile objects with every possible combination of values
     def substitution_combos(self):
         variables = list(self.variables.keys())
-        combos = product_cached(*[self.variables[var] for var in variables])
+        if variables:
+            combos = product_cached(*[self.variables[var] for var in variables])
+        else:
+            combos = [[]]
         for i, combo in enumerate(combos):
             output_sub_file = SubstitutionFile(suppress_warning = True)
             str_header = self.generate_str_header()
@@ -296,6 +303,9 @@ class RecipeFile(SubstitutionFile):
         sub_files = self.recipe.substitution_combos()
         for i, sub_file in enumerate(sub_files):
             sub_file.substitution_id = i+1
+            sub_file.modules_d = self.modules_d
+            sub_file.module_paths = self.module_paths
+            sub_file._defaults = self._defaults
             yield sub_file
         return 
     def slim_files(self):
@@ -305,120 +315,118 @@ class RecipeFile(SubstitutionFile):
     def print_recipe(self):
         self.recipe.print_recipe(indentation = '')
 
-## test
-txt = '''
-[general.slim]
-VAR1=1
-{
-  [module1.slim]
-  VAR2=3
+# ## test
+# txt = '''
+# [general.slim]
+# VAR1=1
+# {
+#   [module1.slim]
+#   VAR2=3
 
-  [module2.slim]
-  VAR3=2
-}|{
-  [module3.slim]
-  VAR4=0
-  {
-    [module1.slim]
-    VAR2=3
-  }|{
-    [module2.slim]
-    VAR3=2
-  }
-}
-'''
+#   [module2.slim]
+#   VAR3=2
+# }|{
+#   [module3.slim]
+#   VAR4=0
+#   {
+#     [module1.slim]
+#     VAR2=3
+#   }|{
+#     [module2.slim]
+#     VAR3=2
+#   }
+# }
+# '''
 
-txt2 = '''[general.slim]
-VAR1=1;2;3
-VAR2=a
-VAR3=0.5, "f", 0.0;0.5, "f", 0.5
-VAR4=$VAR4$'''
+# txt2 = '''[general.slim]
+# VAR1=1;2;3
+# VAR2=a
+# VAR3=0.5, "f", 0.0;0.5, "f", 0.5
+# VAR4=$VAR4$'''
 
-txt3 = '''[general.slim]
-VAR1=1;2;3
-VAR2=a
+# txt3 = '''[general.slim]
+# VAR1=1;2;3
+# VAR2=a
 
-[module1.slim]
-VAR3=0.5, "f", 0.0;0.5, "f", 0.5
-VAR4=$VAR4$'''
+# [module1.slim]
+# VAR3=0.5, "f", 0.0;0.5, "f", 0.5
+# VAR4=$VAR4$'''
 
-## test
-txt4 = '''[general.slim]
-VAR1=1
-{
-  [general.slim]
-  VAR2=1
+# ## test
+# txt4 = '''[general.slim]
+# VAR1=1
+# {
+#   [general.slim]
+#   VAR2=1
 
-  [module2.slim]
-  VAR3=2
-}|{
-  [module3.slim]
-  VAR4=0
-  {
-    [general.slim]
-    VAR2=3
-  }|{
-    [module2.slim]
-    VAR3=2
-  }
-}
-'''
+#   [module2.slim]
+#   VAR3=2
+# }|{
+#   [module3.slim]
+#   VAR4=0
+#   {
+#     [general.slim]
+#     VAR2=3
+#   }|{
+#     [module2.slim]
+#     VAR3=2
+#   }
+# }
+# '''
 
-## unlevel_list is from code_blocks.py
-multi_line = pp.OneOrMore(pp.Regex( "[^{}]+" ))
-body = pp.nestedExpr( '{', '}', content = multi_line )
-unlevel_list(body.searchString('{' + txt + '}').asList())
+# ## unlevel_list is from code_blocks.py
+# multi_line = pp.OneOrMore(pp.Regex( "[^{}]+" ))
+# body = pp.nestedExpr( '{', '}', content = multi_line )
+# unlevel_list(body.searchString('{' + txt + '}').asList())
 
-y = RecipeBlock(txt2.split('\n'), None)
-y_subs = list(y.substitution_combos())
-for y_sub in y_subs:
-    print(y_sub.generate_string())
+# y = RecipeBlock(txt2.split('\n'), None)
+# y_subs = list(y.substitution_combos())
+# for y_sub in y_subs:
+#     print(y_sub.generate_string())
 
-z = RecipeBlockMulti([txt3], None)
-z_subs = list(z.substitution_combos())
-for z_sub in z_subs:
-    print("---")
-    print(z_sub.generate_string())
+# z = RecipeBlockMulti([txt3], None)
+# z_subs = list(z.substitution_combos())
+# for z_sub in z_subs:
+#     print("---")
+#     print(z_sub.generate_string())
 
-z = RecipeBlockMulti(group_alt_blocks(unlevel_list(body.searchString('{' + txt4 + '}').asList())), None)
-z_subs = list(z.substitution_combos())
-for z_sub in z_subs:
-    print("---")
-    print(z_sub.generate_string())
+# z = RecipeBlockMulti(group_alt_blocks(unlevel_list(body.searchString('{' + txt4 + '}').asList())), None)
+# z_subs = list(z.substitution_combos())
+# for z_sub in z_subs:
+#     print("---")
+#     print(z_sub.generate_string())
 
-## test all :)
-dir_base = '/mnt/d/OneDrive_doysd/OneDrive - Default Directory/scripts/SLiMerge'
-fname = dir_base + '/test/recipes/scd.slim.recipe'
-modules = [dir_base + '/test/modules/output_full.slim', dir_base + '/test/modules/general_WF.slim', dir_base + '/test/modules/add_new_drawn_mutation.slim']
-x = RecipeFile(fname, modules)
-x = RecipeFile(fname = fname, module_paths = [dir_base + "/test/modules"])
-x_subs = x.substitution_files()
-x_subs1 = next(x_subs)
-print(x_subs1.generate_string())
-x_subs2 = next(x_subs)
-print(x_subs2.generate_string())
+# ## test all :)
+# dir_base = '/mnt/d/OneDrive_doysd/OneDrive - Default Directory/scripts/SLiMerge'
+# dir_base = "/mnt/chaelab/rachelle/scripts/SLiMerge"
+# fname = dir_base + '/test/recipes/scd.slim.recipe'
+# fname = dir_base + '/test/recipes/scd_less.slim.recipe'
+# modules = [dir_base + '/test/modules/output_full.slim', dir_base + '/test/modules/general_WF.slim', dir_base + '/test/modules/add_new_drawn_mutation.slim']
+# x = RecipeFile(fname, modules)
 
-x_subs2_split = x_subs2.generate_string().split('\n')
-for line in x_subs1.generate_string().splitlines():
-    if line not in x_subs2_split:
-        print(line)
+# x = RecipeFile(fname = fname, module_paths = [dir_base + "/test/modules"])
+# x.num_combos()
+# x_subs = x.substitution_files()
+# x_subs1 = next(x_subs)
+# x_subs1.get_module_path("general_WF.slim")
+# print(x_subs1.generate_string())
+# x_subs1_script = x_subs1.build_script()
+# print(x_subs1_script.make_string())
 
-x_subs1_split = x_subs1.generate_string().split('\n')
-for line in x_subs2.generate_string().splitlines():
-    if line not in x_subs1_split:
-        print(line)
+# with open(dir_base + "/test/scripts/test_recipe_subs1.slim", "w+") as f:
+#     f.write(x_subs1_script.make_string())
 
-x_subs_num = sum(1 for _ in x_subs)
 
-print(next(x_subs).generate_string())
+# x_subs2 = next(x_subs)
+# print(x_subs2.generate_string())
 
-def print_sub_files(iterable):
-    for e in iterable:
-        print('---')
-        print(e.generate_string())
-    return
+# def print_sub_files(iterable):
+#     for e in iterable:
+#         print('---')
+#         print(e.generate_string())
+#     return
 
-def print_recipes(iterable):
-    for e in iterable:
-        e.print_recipe()
-    return
+# def print_recipes(iterable):
+#     for e in iterable:
+#         e.print_recipe()
+#     return

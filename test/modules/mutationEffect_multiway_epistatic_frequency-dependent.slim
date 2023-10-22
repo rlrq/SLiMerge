@@ -6,9 +6,9 @@ mutationEffect($MUTATION_1$) {
 		return $EPISTATIC_S$;
 	} else {
 		if (homozygous) {
-			return 1 + $NEUTRAL_FREQ$ - sim.mutationFrequencies($SUBPOPULATION$, mut);
+			return mutFitness(mut, $NEUTRAL_FREQ$, $SUBPOPULATION$);
 		} else {
-			return 1 + ($NEUTRAL_FREQ$ - sim.mutationFrequencies($SUBPOPULATION$, mut) * mut.mutationType.dominanceCoeff);
+			return (mutFitness(mut, $NEUTRAL_FREQ$, $SUBPOPULATION$) * mut.mutationType.dominanceCoeff);
 		}
 	}
 }
@@ -17,4 +17,12 @@ mutationEffect($MUTATION_1$) {
 function(logical)hasMuts(object<Individual> indv,
                          object<MutationType> muts){
 	return(all(sapply(muts, "any(indv.genomes.countOfMutationsOfType(applyValue) > 0);")));
+}
+
+// returns frequency-dependent fitness of mutation (using 'mut' as variable name conflicts with constant 'mut' as defined in mutationEffects etc.)
+function(float)mutFitness(object<Mutation> m, float neutral_freq, object<Subpopulation> subpopulation) {
+    return 1 + mutFitnessRelative(m, neutral_freq, subpopulation);
+}
+function(float)mutFitnessRelative(object<Mutation> m, float neutral_freq, object<Subpopulation> subpopulation) {
+    return neutral_freq - sim.mutationFrequencies(subpopulation, m);
 }

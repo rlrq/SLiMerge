@@ -3,7 +3,8 @@
 // MUTATIONS should be vector of mutation types (e.g. c(m1, m2))
 modifyChild() {
 	if (hasMuts(child, $MUTATIONS$)) {
-		return ((rbinom(1, 1, $EPISTATIC_S$) > 0) ? T else F);
+		return ((runif(1, 0, 1) < $EPISTATIC_S$) ? T else F);
+		// return ((rbinom(1, 1, $EPISTATIC_S$) > 0) ? T else F); (used for runs before 2023/10/19)
 	}
 	return T;
 }

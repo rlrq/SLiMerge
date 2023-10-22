@@ -1,0 +1,63 @@
+initialize(){
+	defineGlobal("SIMULATION_ID", "scd");
+	defineConstant("MUTATION_RATE", 1e-7);
+	defineConstant("POPULATION_NAME", ""p1"");
+	defineConstant("POPULATION_SIZE", 100);
+	defineConstant("GENOME_SIZE", 100000);
+	initializeMutationRate(MUTATION_RATE);
+	initializeMutationType("m1", 0.5, "f", 0.0);
+	initializeGenomicElementType("g1", m1, 1.0);
+	initializeGenomicElement(g1, 0, GENOME_SIZE - 1);
+	initializeRecombinationRate(1e-6);
+	defineConstant("NEUTRAL_FREQ_A", 0.3);
+	defineConstant("NEUTRAL_FREQ_B", 0.3);
+	defineConstant("EPISTATIC_S", 0.5);
+	initializeMutationType("m2", 1.0, "f", 0.0);
+	m2.convertToSubstitution = F;
+	m2.color = "red";
+	initializeMutationType("m3", 1.0, "f", 0.0);
+	m3.convertToSubstitution = F;
+	m3.color = "#20D033";
+}
+1 early(){
+	sim.addSubpop(POPULATION_NAME, POPULATION_SIZE);
+	p1.setValue("m2_indv_frequency", NULL);
+	p1.setValue("m2_indv_frequency_update_cycle", NULL);
+	p1.setValue("m3_indv_frequency", NULL);
+	p1.setValue("m3_indv_frequency_update_cycle", NULL);
+}
+20 late(){
+	sim.simulationFinished();
+}
+1 late(){
+	p1.sampleIndividuals(10, F).genomes.addNewDrawnMutation(m2, 9999);
+	p1.sampleIndividuals(10, F).genomes.addNewDrawnMutation(m3, 89999);
+}
+mutationEffect(m2){
+	return mutFitness(mut, NEUTRAL_FREQ_A, p1);
+}
+function(float)mutFitness(object<Mutation> m, float neutral_freq, object<Subpopulation> subpopulation){
+	return 1 + mutFitnessRelative(m, neutral_freq, subpopulation);
+}
+function(float)mutFitnessRelative(object<Mutation> m, float neutral_freq, object<Subpopulation> subpopulation){
+	return neutral_freq - mutRelativeFrequencyByIndv(m, subpopulation);
+}
+function(float)mutRelativeFrequencyByIndv(object<Mutation> m, object<Subpopulation> subpopulation){
+	if (sim.cycle == subpopulation.getValue(paste0(m.mutationType, "_indv_frequency_update_cycle"))){
+		return subpopulation.getValue(paste0(m.mutationType, "_indv_frequency"));
+	}
+	else{
+		freq = numIndvsWithMut(subpopulation.individuals, m.mutationType)/subpopulation.individualCount;
+		subpopulation.setValue(paste0(m.mutationType, "_indv_frequency", freq);
+		subpopulation.setValue(paste0(m.mutationType, "_indv_frequency_update_cycle", sim.cycle);
+	}
+}
+function(logical)hasMut(object<Individual> indvs,object<MutationType> m){
+	return(sapply(indvs, "any(applyValue.genomes.countOfMutationsOfType(m) > 0);"));
+}
+function(integer)numIndvsWithMut(object<Individual> indvs,object<MutationType> m){
+	return(sum(sapply(indvs, "hasMut(applyValue, m);")));
+}
+mutationEffect(m3){
+	return mutFitness(mut, NEUTRAL_FREQ_B, p1);
+}

@@ -1,6 +1,11 @@
 // variables with defaults: MUTATION_1,MUTATION_2,EPISTATIC_S,NEUTRAL_FREQ,SUBPOPULATION
 // requires: MUTATION_1,MUTATION_2,EPISTATIC_S,NEUTRAL_FREQ,SUBPOPULATION
 // Epistatic AND frequency dependent reproductive success rate function
+1 early() {
+	$SUBPOPULATION$.setValue("$MUTATION_1$_indv_frequency", NULL);
+	$SUBPOPULATION$.setValue("$MUTATION_1$_indv_frequency_update_cycle", 0);
+}
+
 mutationEffect($MUTATION_1$) {
 	if (any(individual.genomes.countOfMutationsOfType($MUTATION_2$) > 0)){
 		return $EPISTATIC_S$;

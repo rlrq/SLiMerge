@@ -2,7 +2,7 @@
 // requires: MUTATION_NAME,NEUTRAL_FREQ,SUBPOPULATION
 1 early() {
 	$SUBPOPULATION$.setValue("$MUTATION_NAME$_indv_frequency", NULL);
-	$SUBPOPULATION$.setValue("$MUTATION_NAME$_indv_frequency_update_cycle", NULL);
+	$SUBPOPULATION$.setValue("$MUTATION_NAME$_indv_frequency_update_cycle", 0);
 }
 
 mutationEffect($MUTATION_NAME$) {

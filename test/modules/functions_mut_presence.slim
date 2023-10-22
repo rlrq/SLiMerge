@@ -1,11 +1,13 @@
+// functions that previously used 'mut' as variable name have had the variable name changed to 'm' as 'mut' conflicts with constant 'mut' as defined in mutationEffects etc.
+
 // returns True if any individuals in 'indv' has a given mutation type
-function(logical)hasMut(object<Individual> indvs,object<MutationType> mut) {
-	return(sapply(indvs, "any(applyValue.genomes.countOfMutationsOfType(mut) > 0);"));
+function(logical)hasMut(object<Individual> indvs,object<MutationType> m) {
+	return(sapply(indvs, "any(applyValue.genomes.countOfMutationsOfType(m) > 0);"));
 }
 
 // returns number of individuals with a given mutation type
-function(integer)numIndvsWithMut(object<Individual> indvs,object<MutationType> mut){
-	return(sum(sapply(indvs, "hasMut(applyValue, mut);")));
+function(integer)numIndvsWithMut(object<Individual> indvs,object<MutationType> m){
+	return(sum(sapply(indvs, "hasMut(applyValue, m);")));
 }
 
 // returns True if a given individual has all of mutation types in 'muts'
@@ -19,8 +21,8 @@ function(integer)numIndvsWithMuts(object<Individual> indvs,object<MutationType> 
 }
 
 // returns True if a given mutation is present in any individuals
-function(logical)mutPresent(object<Individual> indvs,object<MutationType> mut){
-	return(any(sapply(indvs, "hasMut(applyValue, mut);")));
+function(logical)mutPresent(object<Individual> indvs,object<MutationType> m){
+	return(any(sapply(indvs, "hasMut(applyValue, m);")));
 }
 
 // returns True if all mutations are present in at any individuals (together or separately)

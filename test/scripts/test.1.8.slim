@@ -43,13 +43,13 @@ function(float)mutFitnessRelative(object<Mutation> m, float neutral_freq, object
 	return neutral_freq - mutRelativeFrequencyByIndv(m, subpopulation);
 }
 function(float)mutRelativeFrequencyByIndv(object<Mutation> m, object<Subpopulation> subpopulation){
-	if (sim.cycle == subpopulation.getValue(paste0(m.mutationType, "_indv_frequency_update_cycle"))){
-		return subpopulation.getValue(paste0(m.mutationType, "_indv_frequency"));
+	if (sim.cycle == subpopulation.getValue(paste0("m", m.mutationType.id, "_indv_frequency_update_cycle"))){
+		return subpopulation.getValue(paste0("m", m.mutationType.id, "_indv_frequency"));
 	}
 	else{
 		freq = numIndvsWithMut(subpopulation.individuals, m.mutationType)/subpopulation.individualCount;
-		subpopulation.setValue(paste0(m.mutationType, "_indv_frequency", freq);
-		subpopulation.setValue(paste0(m.mutationType, "_indv_frequency_update_cycle", sim.cycle);
+		subpopulation.setValue(paste0("m", m.mutationType.id, "_indv_frequency", freq));
+		subpopulation.setValue(paste0("m", m.mutationType.id, "_indv_frequency_update_cycle", sim.cycle));
 	}
 }
 function(logical)hasMut(object<Individual> indvs,object<MutationType> m){

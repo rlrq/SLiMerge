@@ -1,7 +1,11 @@
 // variables with defaults: MUTATION_NAME,NEUTRAL_FREQ,SUBPOPULATION
 // requires: MUTATION_NAME,NEUTRAL_FREQ,SUBPOPULATION
 mutationEffect($MUTATION_NAME$) {
-	return mutFitness(mut, $NEUTRAL_FREQ$, $SUBPOPULATION$);
+	if (homozygous) {
+		return 1 + mutFitnessRelative(mut, $NEUTRAL_FREQ$, $SUBPOPULATION$);
+	} else {
+		return 1 + (mutFitnessRelative(mut, $NEUTRAL_FREQ$, $SUBPOPULATION$) * mut.mutationType.dominanceCoeff);
+	}
 }
 
 // returns frequency-dependent fitness of mutation (using 'mut' as variable name conflicts with constant 'mut' as defined in mutationEffects etc.)

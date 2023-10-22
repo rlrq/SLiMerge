@@ -1,0 +1,4 @@
+// returns frequency-dependent fitness of mutation
+function(float)mutFitness(object<MutationType> mut,integer neutral_freq, object<Subpopulation> subpopulation) {
+    return 1 + neutral_freq - sim.mutationFrequencies(subpopulation, mut);
+}

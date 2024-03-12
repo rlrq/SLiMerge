@@ -144,7 +144,7 @@ class RecipeBlockMulti():
         return numpy.prod([block.num_combos() for block in self.blocks])
     ## generator of SubstitutionFile objects with every possible combination of blocks and values
     def substitution_combos(self, overwrite_earlier = True):
-        combos = product_cached(*[block.substitution_combos() for block in self.blocks])
+        combos = product_cached(*[block.substitution_combos() for block in self.blocks if block is not None])
         for i, combo in enumerate(combos):
             output = SubstitutionFile(suppress_warning = True)
             for sub_file in combo:

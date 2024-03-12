@@ -306,6 +306,7 @@ class SubstitutionFile():
         output = ""
         for blocks in self.data.values():
             for block in blocks:
+                if block is None: continue
                 output += block.generate_string()
         return output
     def generate_script(self):

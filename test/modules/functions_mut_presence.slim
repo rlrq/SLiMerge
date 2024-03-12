@@ -15,6 +15,11 @@ function(logical)hasMuts(object<Individual> indv,object<MutationType> muts){
 	return(all(sapply(muts, "any(indv.genomes.countOfMutationsOfType(applyValue) > 0);")));
 }
 
+// returns True if a given individual has none of mutation types in 'muts'
+function(logical)hasNoMuts(object<Individual> indv,object<MutationType> muts){
+	return(all(sapply(muts, "all(indv.genomes.countOfMutationsOfType(applyValue) == 0);")));
+}
+
 // returns the number of individuals with all of the mutation types in 'muts'
 function(integer)numIndvsWithMuts(object<Individual> indvs,object<MutationType> muts){
 	return(sum(sapply(indvs, "hasMuts(applyValue, muts);")));

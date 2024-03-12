@@ -1,0 +1,33 @@
+1 late(){
+	defineGlobal("MUTATIONS", sim.mutations);
+	defineGlobal("MUTATIONS_TYPE", sapply(sim.mutations, "applyValue.mutationType.id;"));
+}
+
+function(object<Mutation>)orderTrackedMutationsByMutationType(object<Mutation> muts, integer mutID){
+	return(sapply(order(mutID), "muts[applyValue];"));
+}
+
+
+// copied from functions_mut_presence.slim
+// returns True if any individuals in 'indv' has a given mutation type
+function(logical)hasMut(object<Individual> indvs,object<MutationType> m) {
+	return(sapply(indvs, "any(applyValue.genomes.countOfMutationsOfType(m) > 0);"));
+}
+// returns number of individuals with a given mutation type
+function(integer)numIndvsWithMut(object<Individual> indvs,object<MutationType> m){
+	return(sum(sapply(indvs, "hasMut(applyValue, m);")));
+}
+
+
+function(integer)orderedIndvWithMutationCounts(object<Subpopulation> subpop, object<Mutation> muts){
+	indv_counts = sapply(muts, "numIndvsWithMut(subpop.individuals, applyValue.mutationType);");
+	return(indv_counts);
+}
+
+function(string)orderedMutationAndIndvCountsStr(object<Subpopulation> subpop, object<Mutation> muts, integer mutID){
+	ordered_mutations = orderTrackedMutationsByMutationType(muts, mutID);
+	mutation_counts = sim.mutationCounts(subpop, ordered_mutations);
+	indv_counts = orderedIndvWithMutationCounts(subpop, ordered_mutations);
+	return(sapply(0:(length(muts)-1), "paste(mutation_counts[applyValue], indv_counts[applyValue], sep=',');"));
+}
+

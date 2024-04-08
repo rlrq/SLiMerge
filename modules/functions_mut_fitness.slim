@@ -1,4 +1,27 @@
+// these functions are inteded as plug-ins for more generaly frequency-dependent modulesa. current frequency-depedent modules need to be modified to allow $mutRelativeFrequency$ variable for subbing in functions. ...ByIndv... functions require $MUTATION_NAME$_indv_frequency and $MUTATION_NAME$_indv_frequency_update_cycle values to be set in subpopulation (see mutationEffect_indv-frequency-dependent(_v2).slim).
+
 // returns frequency-dependent fitness of mutation
 function(float)mutFitness(object<MutationType> mut,integer neutral_freq, object<Subpopulation> subpopulation) {
     return 1 + neutral_freq - sim.mutationFrequencies(subpopulation, mut);
+}
+// functions to get relative fitness (without adding 1)
+function(float)mutRelativeFitnessByGenomeLinear(object<Mutation> m, float neutral_freq, object<Subpopulation> subpopulation, [numeric scale = 1]) {
+    return scale * (neutral_freq - sim.mutationFrequencies(subpopulation, m));
+}
+function(float)mutRelativeFitnessByIndvLinear(object<Mutation> m, float neutral_freq, object<Subpopulation> subpopulation, [numeric scale = 1]) {
+    return scale * (neutral_freq - mutRelativeFrequencyByIndv(m, subpopulation));
+}
+// functions to get mutation frequency
+function(float)mutRelativeFrequencyByGenome(object <Mutation> m, object<Subpopulation> subpopulation){
+	return sim.mutationFrequencies(subpopulation, m);
+}
+function(float)mutRelativeFrequencyByIndv(object<Mutation> m, object<Subpopulation> subpopulation){
+	if (sim.cycle == subpopulation.getValue(paste0("m", m.mutationType.id, "_indv_frequency_update_cycle"))) {
+		return subpopulation.getValue(paste0("m", m.mutationType.id, "_indv_frequency"));
+	} else {
+		freq = numIndvsWithMut(subpopulation.individuals, m.mutationType)/subpopulation.individualCount;
+		subpopulation.setValue(paste0("m", m.mutationType.id, "_indv_frequency"), freq);
+		subpopulation.setValue(paste0("m", m.mutationType.id, "_indv_frequency_update_cycle"), sim.cycle);
+		return freq;
+	}
 }

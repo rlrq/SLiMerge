@@ -1,0 +1,10 @@
+// variables with defaults: MUTATION_1,MUTATION_2,EPISTATIC_S,NEUTRAL_FREQ,SUBPOPULATION
+// requires: MUTATION_1,MUTATION_2,EPISTATIC_S,NEUTRAL_FREQ,SUBPOPULATION
+// Epistatic AND frequency dependent reproductive success rate function
+mutationEffect($MUTATION_1$) {
+	if (any(individual.genomes.countOfMutationsOfType($MUTATION_2$) > 0)){
+		return $EPISTATIC_S$;
+	} else {
+		return $SELECTION$;
+	}
+}

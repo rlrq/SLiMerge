@@ -1,0 +1,8 @@
+// variables with defaults: CALLBACK,CONDITION,WRITE_FULL,OUTPUT_FILE
+// requires: CALLBACK,CONDITION,OUTPUT_FILE,APPEND_CONTENT
+$CALLBACK$() {
+	if ($CONDITION$){
+		sim.simulationFinished();
+		writeFile($OUTPUT_FILE$, $APPEND_CONTENT$, append=T);
+	}
+}

@@ -1,0 +1,3 @@
+[modifyChild_multiway_epistatic.slim]
+MUTATIONS=c(m1,m2)
+EPISTATIC_S=0.0

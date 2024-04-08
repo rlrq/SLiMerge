@@ -1,0 +1,52 @@
+// variables with defaults: MUTATION_1,MUTATIONS,EPISTATIC_S,NEUTRAL_FREQ,SUBPOPULATION
+// requires: MUTATION_1,MUTATIONS,EPISTATIC_S,NEUTRAL_FREQ,SUBPOPULATION
+// Epistatic AND frequency dependent reproductive success rate function
+1 early() {
+	$SUBPOPULATION$.setValue("$MUTATION_1$_indv_frequency", NULL);
+	$SUBPOPULATION$.setValue("$MUTATION_1$_indv_frequency_update_cycle", 0);
+}
+
+mutationEffect($MUTATION_1$) {
+	if (hasMuts(individual, $MUTATIONS$)){
+		return $EPISTATIC_S$;
+	} else {
+		if (homozygous) {
+			return 1 + mutFitnessRelative(mut, $NEUTRAL_FREQ$, $SUBPOPULATION$);
+		} else {
+			return 1 + (mutFitnessRelative(mut, $NEUTRAL_FREQ$, $SUBPOPULATION$) * mut.mutationType.dominanceCoeff);
+		}
+	}
+}
+
+// function shared with modifyChild_multiway_epistatic.slim
+function(logical)hasMuts(object<Individual> indv,
+                         object<MutationType> muts){
+	return(all(sapply(muts, "any(indv.genomes.countOfMutationsOfType(applyValue) > 0);")));
+}
+
+// returns frequency-dependent fitness of mutation (using 'mut' as variable name conflicts with constant 'mut' as defined in mutationEffects etc.)
+function(float)mutFitness(object<Mutation> m, float neutral_freq, object<Subpopulation> subpopulation) {
+    return 1 + mutFitnessRelative(m, neutral_freq, subpopulation);
+}
+function(float)mutFitnessRelative(object<Mutation> m, float neutral_freq, object<Subpopulation> subpopulation) {
+    return neutral_freq - mutRelativeFrequencyByIndv(m, subpopulation);
+}
+function(float)mutRelativeFrequencyByIndv(object<Mutation> m, object<Subpopulation> subpopulation){
+	if (sim.cycle == subpopulation.getValue(paste0("m", m.mutationType.id, "_indv_frequency_update_cycle"))) {
+		return subpopulation.getValue(paste0("m", m.mutationType.id, "_indv_frequency"));
+	} else {
+		freq = numIndvsWithMut(subpopulation.individuals, m.mutationType)/subpopulation.individualCount;
+		subpopulation.setValue(paste0("m", m.mutationType.id, "_indv_frequency"), freq);
+		subpopulation.setValue(paste0("m", m.mutationType.id, "_indv_frequency_update_cycle"), sim.cycle);
+		return freq;
+	}
+}
+// the following functions were copied from functions_mut_presence.slim
+// returns True if any individuals in 'indv' has a given mutation type
+function(logical)hasMut(object<Individual> indvs,object<MutationType> m) {
+	return(sapply(indvs, "any(applyValue.genomes.countOfMutationsOfType(m) > 0);"));
+}
+// returns number of individuals with a given mutation type
+function(integer)numIndvsWithMut(object<Individual> indvs,object<MutationType> m){
+	return(sum(sapply(indvs, "hasMut(applyValue, m);")));
+}

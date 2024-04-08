@@ -1,0 +1,15 @@
+// variables with defaults: MUTATIONS,EPISTATIC_S
+// requires: MUTATIONS,EPISTATIC_S
+// MUTATIONS should be vector of mutation types (e.g. c(m1, m2))
+modifyChild() {
+	if (hasMuts(child, $MUTATIONS$)) {
+		return ((runif(1, 0, 1) < $EPISTATIC_S$) ? T else F);
+		// return ((rbinom(1, 1, $EPISTATIC_S$) > 0) ? T else F); (used for runs before 2023/10/19)
+	}
+	return T;
+}
+
+function(logical)hasMuts(object<Individual> indv,
+                         object<MutationType> muts){
+	return(all(sapply(muts, "any(indv.genomes.countOfMutationsOfType(applyValue) > 0);")));
+}

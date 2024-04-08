@@ -1,0 +1,4 @@
+[set_selfing_rate.slim]
+CALLBACK=1 early
+SUBPOPULATION=p1
+SELFING_RATE=0

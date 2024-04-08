@@ -1,0 +1,22 @@
+// variables with defaults: SUBSTITUTION_COMBO_ID,OUTPUT_DIRECTORY,OUTPUT_PREFIX,OUTPUT_GENERATIONS,START,END
+// OUTPUT_GENERATIONS should be a vector like 'c(10, 100, 10000)' (unquoted)
+initialize() {
+	// get seed
+	defineConstant("SEED", getSeed());
+	// substitution id is an optional variable that can be used to build an output file name
+	// by default is not used. to use it, simply include it in OUTPUT_DIRECTORY definition
+	defineConstant("SUBSTITUTION_ID", $SUBSTITUTION_ID$);
+	// output checkpoints (generations to sample must be in order)
+	defineConstant("OUTPUT_DIRECTORY", $OUTPUT_DIRECTORY$);
+	defineGlobal("OUTPUT_PREFIX", $OUTPUT_PREFIX$);
+	defineConstant("OUTPUT_GENERATIONS", $OUTPUT_GENERATIONS$);
+	defineGlobal("OUTPUT_GENERATION_i", 0);
+}
+
+// output full
+$START$:$END$ late() {
+	if (sim.cycle == OUTPUT_GENERATIONS[OUTPUT_GENERATION_i]) {
+		sim.outputFull(OUTPUT_DIRECTORY + "/" + OUTPUT_PREFIX + "_" + SEED + "_" + sim.cycle + ".txt");
+		defineGlobal("OUTPUT_GENERATION_i", OUTPUT_GENERATION_i + 1);
+	}
+}

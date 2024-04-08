@@ -1,0 +1,13 @@
+// variables with defaults: MUTATION_NAME,NEUTRAL_FREQ,SUBPOPULATION
+// requires: MUTATION_NAME,NEUTRAL_FREQ,SUBPOPULATION
+mutationEffect($MUTATION_NAME$) {
+	return mutFitness(mut, $NEUTRAL_FREQ$, $SUBPOPULATION$);
+}
+
+// returns frequency-dependent fitness of mutation (using 'mut' as variable name conflicts with constant 'mut' as defined in mutationEffects etc.)
+function(float)mutFitness(object<Mutation> m, float neutral_freq, object<Subpopulation> subpopulation) {
+    return 1 + mutFitnessRelative(m, neutral_freq, subpopulation);
+}
+function(float)mutFitnessRelative(object<Mutation> m, float neutral_freq, object<Subpopulation> subpopulation) {
+    return neutral_freq - sim.mutationFrequencies(subpopulation, m);
+}

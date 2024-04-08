@@ -1,0 +1,5 @@
+[simulation_finished_append.slim]
+CALLBACK=10 late
+CONDITION=T
+OUTPUT_FILE="slim_append.txt"
+APPEND_CONTENT=paste0(getSeed(), '\t', sim.cycle, sep='\t')

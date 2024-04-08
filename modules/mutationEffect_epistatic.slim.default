@@ -1,0 +1,6 @@
+[mutationEffect_epistatic_frequency-dependent.slim]
+MUTATION_1=m1
+MUTATION_2=m2
+EPISTATIC_S=0.0
+SELECTION=0.0
+SUBPOPULATION=p1

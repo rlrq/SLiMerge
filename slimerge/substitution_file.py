@@ -293,6 +293,7 @@ class SubstitutionFile():
     def blocks(self):
         for module, sub_blocks in self.data.items():
             for sub_block in sub_blocks:
+                if sub_block is None: continue
                 yield sub_block
         return
     @property
@@ -301,7 +302,7 @@ class SubstitutionFile():
     ## returns empty list if module not in self
     ## else returns list of SubstitutionBlockSubFile objects for the module
     def get_blocks_by_module(self, module):
-        return self.data.get(module, [])
+        return [x for x in self.data.get(module, []) if x is not None]
     def generate_string(self):
         output = ""
         for blocks in self.data.values():

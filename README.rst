@@ -489,5 +489,9 @@ For example, if we return to ``example_5.recipe``, we can execute the following:
 The contents of ``run_summary.txt`` are::
 
   SUBSTITUTION_ID	BREEDING_SYSTEM	MISCELLANEOUS_CONSTANT
-  1	"separate_sexes"	"miscellaneous constant"
-  2	"hermaphrodites"	"miscellaneous constant"
+  1	separate_sexes	miscellaneous constant
+  2	hermaphrodites	miscellaneous constant
+
+Note:
+
+* Quotes for strings are stripped

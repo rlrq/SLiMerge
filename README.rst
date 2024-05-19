@@ -394,7 +394,7 @@ This section describes some generic modules and their usage.
 add_constant.slim, add_global.slim
 ++++++++++++++++++++++++++++++++++
 
-These modules allow users to define resuable variables in the output .slim file.
+These modules allow users to define variables in the output .slim file. This is also useful if users wish to parse metadata for each substitution combination using resolved substitution files.
 
 add_constant.slim::
 
@@ -410,13 +410,17 @@ add_global.slim::
           defineGlobal("$GLOBAL_NAME$", $GLOBAL_VALUE$);
   }
 
-Sample usage in SLiMerge .recipe file::
+Sample usage in ``example_5.recipe`` file::
 
   [add_global.slim].1
   GLOBAL_NAME=MUTATIONS
   GLOBAL_VALUE=c()
   
-  [add_constant.slim]
+  [add_constant.slim].1
+  CONSTANT_NAME=MISCELLANEOUS_CONSTANT
+  CONSTANT_VALUE="miscellaneous constant"
+
+  [add_constant.slim].2
   CONSTANT_NAME=BREEDING_SYSTEM
   CONSTANT_VALUE=$BREEDING_SYSTEM$
   
@@ -450,6 +454,7 @@ The contents of ``<prefix>_1.slim``::
 
   initialize() {
           defineGlobal("MUTATIONS", c());
+          defineConstant("MISCELLANEOUS_CONSTANT", "miscellaneous constant");
           defineConstant("BREEDING_SYSTEM", "separate_sexes");
           initializeSex("A");
   }
@@ -458,7 +463,31 @@ The contents of ``<prefix>_2.slim``::
 
   initialize() {
           defineGlobal("MUTATIONS", c());
+          defineConstant("MISCELLANEOUS_CONSTANT", "miscellaneous constant");
           defineConstant("BREEDING_SYSTEM", "hermaphrodites");
   }
 
 Note that regardless of where they are located in the .recipe file, the substitutions under ``[]`` are handled last. This means that ``$CONSTANT_VALUE$`` was first replaced with ``$BREEDING_SYSTEM$``, and then ``$BREEDING_SYSTEM$`` was replaced with either ``"separate_sexes"`` or ``"hermaphrodites"`` depending on which alternative block was assembled.
+
+
+Consolidating substitution combinations using ``summarise_slim_variables.py``
+-----------------------------------------------------------------------------
+
+``summarise_slim_variables.py`` is provided to extract global substitution values (i.e. substitutions under ``[]`` header) from substitution files from a single SLiMerge execution into a single tab-separated text file. Note that this script is not designed to retrieve substitutions for individual modules (e.g. substitutions under ``[add_new_drawn_mutation.slim].1``) EXCEPT constants defined using ``add_constant.slim``.
+
+For example, if we return to ``example_5.recipe``, we can execute the following::
+
+  python3 summarise_slim_variables.py <output directory> --variables BREEDING_SYSTEM --constants MISCELLANEOUS_CONSTANT
+
+, where ``<output directory>`` is the output directory of the SLiMerge execute. The output file, ``run_summary.txt``, will be generated in ``<output directory>``, to obtain the following directory structure::
+  
+  <output directory>
+  |-- run_summary.txt
+  |-- <prefix>_1/
+  +-- <prefix>_2/
+
+The contents of ``run_summary.txt`` are::
+
+  SUBSTITUTION_ID	BREEDING_SYSTEM	MISCELLANEOUS_CONSTANT
+  1	"separate_sexes"	"miscellaneous constant"
+  2	"hermaphrodites"	"miscellaneous constant"

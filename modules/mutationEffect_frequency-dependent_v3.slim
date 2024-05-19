@@ -1,10 +1,10 @@
 // variables with defaults: MUTATION_NAME,NEUTRAL_FREQ,SUBPOPULATION,KWARGS,MUTATION_FITNESS_FUNCTION
-// requires: MUTATION_NAME,NEUTRAL_FREQ,SUBPOPULATION,KWARGS,MUTATION_FITNESS_FUNCTION
+// requires: MUTATION_NAME,SUBPOPULATION,KWARGS,MUTATION_FITNESS_FUNCTION
 mutationEffect($MUTATION_NAME$) {
 	if (homozygous) {
-		return 1 + $MUTATION_FITNESS_FUNCTION$(mut, $NEUTRAL_FREQ$, $SUBPOPULATION$$KWARGS$);
+		return 1 + $MUTATION_FITNESS_FUNCTION$(mut, $SUBPOPULATION$$KWARGS$);
 	} else {
-		return 1 + ($MUTATION_FITNESS_FUNCTION$(mut, $NEUTRAL_FREQ$, $SUBPOPULATION$$KWARGS$) * mut.mutationType.dominanceCoeff);
+		return 1 + ($MUTATION_FITNESS_FUNCTION$(mut, $SUBPOPULATION$$KWARGS$) * mut.mutationType.dominanceCoeff);
 	}
 }
 
@@ -17,11 +17,11 @@ function(float)mutFreq(object<Mutation>m, object<Subpopulation> subpopulation) {
 }
 
 // returns frequency-dependent fitness of mutation (using 'mut' as variable name conflicts with constant 'mut' as defined in mutationEffects etc.)
-function(float)mutRelativeFitnessLinear(object<Mutation> m, float neutral_freq, object<Subpopulation> subpopulation, [numeric scale = 1]) {
+function(float)mutRelativeFitnessLinear(object<Mutation> m, object<Subpopulation> subpopulation, [numeric neutral_freq = 0.5], [numeric scale = 1]) {
     return scale * mutFreqDeficit(m, neutral_freq, subpopulation);
 }
 // in this function, if freq > neutral_freq, fitness decreases linearly; if freq < neutral_freq, fitness increases exponentially (or by some other function?) until it hits max_fitness when freq ~ 0)
-function(float)mutRelativeFitnessLowerExpUpperLinear(object<Mutation> m, float neutral_freq, object<Subpopulation> subpopulation, [numeric scale = 1], [numeric max_fitness = 1], [numeric power = 2]) {
+function(float)mutRelativeFitnessLowerExpUpperLinear(object<Mutation> m, object<Subpopulation> subpopulation, [numeric neutral_freq = 0.5], [numeric scale = 1], [numeric max_fitness = 1], [numeric power = 2]) {
 	freq_deficit = mutFreqDeficit(m, neutral_freq, subpopulation);
 	if (freq_deficit <= 0){
 		return scale * freq_deficit;
@@ -31,7 +31,7 @@ function(float)mutRelativeFitnessLowerExpUpperLinear(object<Mutation> m, float n
 	}
 }
 // in this function, mutations have a baseline cost, and a frequency-dependent (<freq>**power)*max_fitness fitness
-function(float)mutRelativeFitnessBaselineAndExp(object<Mutation> m, float cost, object<Subpopulation> subpopulation, [numeric max_fitness = 1], [numeric power = 2]) {
+function(float)mutRelativeFitnessBaselineAndExp(object<Mutation> m, object<Subpopulation> subpopulation, [numeric cost = 0], [numeric max_fitness = 1], [numeric power = 2]) {
 	frequency_dependent_fitness = max_fitness * ( (1 - mutFreq(m, subpopulation)) ^ power );
 	return frequency_dependent_fitness - cost;
 }

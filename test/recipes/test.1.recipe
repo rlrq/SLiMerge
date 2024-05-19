@@ -1,0 +1,81 @@
+// NO curly braces for ANY VALUES allowed. Reserved for denoting alternative reciple blocks.
+// Alternative blocks should be enclosed with curly braces with '|' between one closing brace and the next opening brace
+// E.g. <open curl><alternative 1><close curl>|<open curl><alternative 2><close curl>|<open curl><alternative 3><close curl>
+// Can be nested
+
+// There should be NO NEWLINES between variables for the same module (comment lines allowed)
+
+// Note that while order is important in .recipe files (later variables will overwrite earlier ones for the same module-order-varname combination), this is not so in substitution files. Substitution files must only contain one instance of each module-order-varname combination, or else a value will be randomly chosen depending on the implementation of the substitution algorithm. Modules may also be added to final script files in random order.
+
+// For modules that are to be included but do not have specific variables (e.g. all variables specified in general section), just the header line will do (e.g. module.slim in '[module.slim]\n\n[next_module.slim]\nVAR1=val\n' is okay)
+
+// anything in this general section (empty square brackets) WILL BE IGNORED (i.e. overridden) where an identical variable is defined for a given module
+[]
+// general_WF.slim
+POPULATION_NAME=p1
+// add_mutation_type.slim
+CONVERT_TO_SUBSTITUTION=F
+// add_new_drawn_mutation.slim
+// SUBPOPULATION also applies to mutationEffect_epistatic_frequency-dependent.slim
+GENERATION=1
+SUBPOPULATION=p1
+N_INDIVIDUALS=10
+REPLACE=F
+// mutationEffect_epistatic_frequency-dependent.slim
+// mutationEffect_multiway_epistatic-frequency_dependent.slim
+// modifyChild
+EPISTATIC_S=EPISTATIC_S
+
+[general_WF.slim]
+SIMULATION_ID="scd"
+MUTATION_RATE=1e-7
+RECOMBINATION_RATE=1e-6
+POPULATION_SIZE=100
+GENOME_SIZE=100000
+MUTATION_NAME=m1
+MUTATION_PARAMS=0.5, "f", 0.0
+GENOME_NAME=g1
+SIMULATION_END=20
+
+[add_constant.slim].1
+CONSTANT_NAME=NEUTRAL_FREQ_A
+CONSTANT_VALUE=0.3
+
+[add_constant.slim].2
+CONSTANT_NAME=NEUTRAL_FREQ_B
+CONSTANT_VALUE=0.3
+
+[add_constant.slim].4
+CONSTANT_NAME=EPISTATIC_S
+CONSTANT_VALUE=0.0;0.5
+
+[add_mutation_type.slim].1
+MUTATION_NAME=m2
+MUTATION_PARAMS=0.5, "f", 0.0;1.0, "f", 0.0
+MUTATION_COLOR=red
+
+[add_mutation_type.slim].2
+MUTATION_NAME=m3
+MUTATION_PARAMS=0.5, "f", 0.0;1.0, "f", 0.0
+MUTATION_COLOR=#20D033
+
+[add_new_drawn_mutation.slim].1
+MUTATION_NAME=m2
+POSITION=9999
+
+[add_new_drawn_mutation.slim].2
+MUTATION_NAME=m3
+POSITION=89999
+
+
+[hermaphrodite.slim]
+CALLBACK=1 early
+SELFING_RATE=0.9
+
+[mutationEffect_indv-frequency-dependent.slim].1
+MUTATION_NAME=m2
+NEUTRAL_FREQ=NEUTRAL_FREQ_A
+
+[mutationEffect_indv-frequency-dependent.slim].2
+MUTATION_NAME=m3
+NEUTRAL_FREQ=NEUTRAL_FREQ_B

@@ -1,0 +1,5 @@
+[mutationEffect_frequency-dependent.slim]
+MUTATION_NAME=m1
+SUBPOPULATION=p1
+MUTATION_FITNESS_FUNCTION=mutRelativeFitnessLinear
+KWARGS=
